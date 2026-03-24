@@ -1,0 +1,162 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: sans-serif;
+}
+
+body {
+  background: linear-gradient(135deg, #0f172a, #1e1b4b, #312e81);
+  color: white;
+}
+
+.app {
+  min-height: 100vh;
+  padding: 30px 15px;
+}
+
+.container {
+  max-width: 900px;
+  margin: auto;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.logo-circle {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #7c3aed, #06b6d4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 30px;
+  margin: 0 auto 15px;
+  box-shadow: 0 0 20px rgba(255,255,255,0.15);
+}
+
+.header h1 {
+  font-size: 34px;
+  margin-bottom: 10px;
+}
+
+.header p {
+  color: #cbd5e1;
+}
+
+.ask-box {
+  background: rgba(255,255,255,0.08);
+  padding: 20px;
+  border-radius: 20px;
+  margin-bottom: 25px;
+  backdrop-filter: blur(10px);
+}
+
+.ask-box textarea {
+  width: 100%;
+  min-height: 120px;
+  border: none;
+  outline: none;
+  resize: none;
+  border-radius: 14px;
+  padding: 15px;
+  font-size: 16px;
+  background: rgba(255,255,255,0.12);
+  color: white;
+}
+
+.ask-box textarea::placeholder {
+  color: #cbd5e1;
+}
+
+.ask-box button {
+  margin-top: 15px;
+  padding: 12px 22px;
+  border: none;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #8b5cf6, #06b6d4);
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.ask-box button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.chat-list {
+  display: grid;
+  gap: 18px;
+}
+
+.chat-card {
+  background: rgba(255,255,255,0.08);
+  border-radius: 18px;
+  padding: 18px;
+  backdrop-filter: blur(10px);
+}
+
+.chat-card p {
+  margin-bottom: 10px;
+  line-height: 1.6;
+}
+
+.badge {
+  display: inline-block;
+  padding: 7px 14px;
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.user-bubble {
+  background: rgba(255, 255, 255, 0.1);
+  padding: 14px 16px;
+  border-radius: 14px;
+  margin-bottom: 12px;
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+.ai-bubble {
+  background: rgba(0, 0, 0, 0.15);
+  padding: 14px 16px;
+  border-radius: 14px;
+  font-size: 16px;
+  line-height: 1.7;
+  color: #f8fafc;
+}
+
+.priority-badge {
+  display: inline-block;
+  margin-top: 12px;
+  padding: 7px 14px;
+  border-radius: 999px;
+  background: #dc2626;
+  color: white;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.badge.positive {
+  background: green;
+}
+
+.badge.neutral {
+  background: blue;
+}
+
+.badge.negative {
+  background: red;
+}
+
+.empty {
+  text-align: center;
+  color: #cbd5e1;
+  padding: 20px;
+}
