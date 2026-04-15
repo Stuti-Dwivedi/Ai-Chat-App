@@ -1,17 +1,22 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import axios from "axios";
 
 const App = () => {
   const [question, setQuestion] = useState("");
   const [history, setHistory] = useState([]);
+  const [currentChat, setCurrentChat] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [listening, setListening] = useState(false);
 
+  const chatEndRef = useRef(null);
+
+  // 🔁 Get History
   const getHistory = async () => {
     try {
       const res = await axios.get("http://localhost:9000/api/chat/history");
-      setHistory(res.data.data);
+      setHistory(res.data.data.reverse());
     } catch (error) {
-      console.log("History Error:", error);
+      console.log(error);
     }
   };
 
@@ -19,70 +24,160 @@ const App = () => {
     getHistory();
   }, []);
 
+  // 📜 Auto scroll
+  useEffect(() => {
+    chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [currentChat]);
+
+  // 💬 Ask Question
   const handleAsk = async (e) => {
     e.preventDefault();
-
     if (!question.trim()) return;
 
     try {
       setLoading(true);
 
-      await axios.post("http://localhost:9000/api/chat/ask", {
-        question,
-      });
+      const res = await axios.post(
+        "http://localhost:9000/api/chat/ask",
+        { question }
+      );
 
+      const newMsg = {
+        question,
+        answer: res.data.data?.answer || "No response",
+      };
+
+      setCurrentChat((prev) => [...prev, newMsg]);
       setQuestion("");
       getHistory();
     } catch (error) {
-      console.log("Ask Error:", error);
-      alert("Failed to generate response");
+      console.log(error);
+      alert("Error");
     } finally {
       setLoading(false);
     }
   };
 
+  // 🆕 New Chat
+  const handleNewChat = () => {
+    setCurrentChat([]);
+  };
+
+  // 📂 Open Chat from sidebar
+  const handleOpenChat = (item) => {
+    setCurrentChat([item]);
+  };
+
+  // 🎤 Voice Input
+  const handleVoice = () => {
+    const SpeechRecognition =
+      window.SpeechRecognition || window.webkitSpeechRecognition;
+
+    if (!SpeechRecognition) {
+      alert("Speech Recognition not supported in your browser");
+      return;
+    }
+
+    const recognition = new SpeechRecognition();
+    recognition.lang = "en-IN";
+    recognition.interimResults = false;
+
+    recognition.start();
+    setListening(true);
+
+    recognition.onresult = (event) => {
+      const transcript = event.results[0][0].transcript;
+      setQuestion(transcript); // 🎯 text me aa jayega
+      setListening(false);
+    };
+
+    recognition.onerror = () => {
+      setListening(false);
+      alert("Voice error");
+    };
+
+    recognition.onend = () => {
+      setListening(false);
+    };
+  };
+
   return (
     <div className="app">
-      <div className="container">
+      
+      {/* 🔹 Sidebar */}
+      <div className="sidebar">
+        <button className="new-chat" onClick={handleNewChat}>
+          + New Chat
+        </button>
+
+        <div className="history">
+          {history.map((item) => (
+            <div
+              key={item._id}
+              className="history-item"
+              onClick={() => handleOpenChat(item)}
+            >
+              {item.question.slice(0, 25)}...
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* 🔹 Main Chat */}
+      <div className="main">
         <div className="header">
-          <div className="logo-circle">✦</div>
-          <h1>AI Chat App</h1>
-          <p>Ask anything and get smart AI-generated answers</p>
+          <h1>AI Chat</h1>
         </div>
 
-        <form className="ask-box" onSubmit={handleAsk}>
-          <textarea
-            placeholder="Ask any question here..."
+        <div className="chat-area">
+          {currentChat.length === 0 && (
+            <p className="empty">Start a new conversation 🚀</p>
+          )}
+
+          {currentChat.map((item, index) => (
+            <div key={index}>
+              <div className="message user fade-in">
+                {item.question}
+              </div>
+
+              <div className="message ai fade-in">
+                {item.answer === "No response"
+                  ? "🤖 Thinking..."
+                  : item.answer}
+              </div>
+            </div>
+          ))}
+
+          {loading && <div className="message ai">Typing...</div>}
+
+          <div ref={chatEndRef}></div>
+        </div>
+
+        {/* 🔻 Input Box with MIC */}
+        <form className="input-box" onSubmit={handleAsk}>
+          <input
+            type="text"
+            placeholder="Type your question..."
             value={question}
             onChange={(e) => setQuestion(e.target.value)}
           />
-          <button type="submit" disabled={loading}>
-            {loading ? "Generating..." : "Ask AI"}
+
+          {/* 🎤 MIC */}
+          <button
+            type="button"
+            className={`mic-btn ${listening ? "active" : ""}`}
+            onClick={handleVoice}
+          >
+            🎤
+          </button>
+
+          <button disabled={loading}>
+            {loading ? "Sending..." : "Send"}
           </button>
         </form>
-
-<div className="chat-list">
-  {history.length > 0 ? (
-    history.map((item) => (
-      <div className="chat-card" key={item._id}>
-        <div className="user-bubble">{item.question}</div>
-
-        <div className="ai-bubble">
-          {item.answer}
-        </div>
-
-        {item.priority === "high" && (
-          <span className="priority-badge">High Priority</span>
-        )}
-      </div>
-    ))
-  ) : (
-    <p className="empty">No chats yet. Start by asking something.</p>
-  )}
-</div>
       </div>
     </div>
   );
 };
-
+ 
 export default App;
